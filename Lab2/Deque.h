@@ -12,7 +12,7 @@ template <typename T> class Deque
 private:
 	T** units;
 	size_t deque_size = 0;
-	static const size_t unit_size = 5;
+	static const size_t unit_size = 60;
 	size_t capacity = 0;
 	T* begin_ptr, * end_ptr;
 	size_t begin_unit = 0, end_unit = 0;
