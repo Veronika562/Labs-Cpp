@@ -17,7 +17,7 @@ private:
 	node<T>* head;
 	node<T>* tail;
 	size_t length;
-	void delete_all() {
+	void clear() {
 		while (length != 0) {
 			node<T>* elem = head;
 			head = head->next;
@@ -28,14 +28,15 @@ private:
 
 public:
 	List() {
-		head = nullptr;
-		tail = nullptr;
+		head = new node<T>;
+		tail = head;
+		head->prev = head->next = nullptr;
 		length = 0;
 	}
 
-	List(List<T>& other) {
+	List(List<T>& other): List() {
 		node<T>* temp = other.head;
-		while (temp != nullptr) {
+		while (temp != other.tail) {
 			push_back(temp->data);
 			temp = temp->next;
 		}
@@ -43,10 +44,10 @@ public:
 	}
 
 	~List() {
-		delete_all();
+		clear();
 	}
 
-	List(const std::initializer_list<T>& list) {
+	List(const std::initializer_list<T>& list): List() {
 		for (auto& element : list) {
 			push_back(element);
 		}
@@ -54,21 +55,21 @@ public:
 
 	List<T>& operator=(List<T>& other) {
 		if (length == other.length) {
-			node<T> elem_this, elem_other;
-			while (elem_other.next != nullptr) {
+			node<T> elem_this = *head, elem_other = *(other.head);
+			while (elem_other != other.tail) {
 				elem_this.data = elem_other.data;
 				elem_this = elem_this.next;
 				elem_other = elem_other.next;
 			}
 		}
 		else {
-			delete_all();
+			clear();
 			head = nullptr;
 			tail = nullptr;
 			length = 0;
 			node<T>* temp = other.head;
 			while (temp != nullptr) {
-				push_back(*temp.data);
+				push_back(temp->data);
 				temp = temp->next;
 			}
 		}
@@ -77,35 +78,21 @@ public:
 
 	void push_back(T value) {
 		node<T>* elem = new node<T>;
-		(*elem).next = nullptr;
-		(*elem).prev = tail;
-		(*elem).data = value;
-		if (tail != nullptr) {
-			(*tail).next = elem;
-		}
-		if (length == 0) {
-			head = tail = elem;
-		} 
-		else {
-			tail = elem;
-		}
+		elem->data = NULL;
+		elem->next = nullptr;
+		elem->prev = tail;
+		tail->data = value;
+		tail->next = elem;
+		tail = elem;
 		length++;
 	}
 
 	void push_front(T value) {
 		node<T>* elem = new node<T>;
-		elem->next = head;
-		elem->prev = nullptr;
 		elem->data = value;
-		if (head != nullptr) {
-			head->prev = elem;
-		}
-		if (length == 0) {
-			head = tail = elem;
-		}
-		else {
-			head = elem;
-		}
+		elem->next = head;
+		head->prev = elem;
+		head = elem;
 		length++;
 	}
 
@@ -161,14 +148,14 @@ public:
 	}
 	Iterator<T> operator--(int) {
 		Iterator<T> temp(*this);
-		ptr = *ptr.prev;
+		ptr = ptr->prev;
 		return temp;
 	}
 
 	bool operator==(const Iterator& other) const { return ptr == other.ptr; }
 	bool operator!=(const Iterator& other) const { return ptr != other.ptr; }
 
-	T operator*() const { return *ptr.data; }
-	T& operator*() { return (*ptr).data; }
+	T operator*() const { return ptr->data; }
+	T& operator*() { return ptr->data; }
 	Iterator<T>* operator->() { return ptr; }
 };
